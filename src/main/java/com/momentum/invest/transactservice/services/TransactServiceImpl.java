@@ -12,6 +12,7 @@ import com.momentum.invest.transactservice.repositories.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
@@ -108,7 +109,7 @@ public class TransactServiceImpl implements TransactService {
     }
 
     private boolean isWithinAllowedTransactionAmount(BigDecimal currentBalance,BigDecimal withdrawalAmount){
-        BigDecimal withdrawalPercentage = (withdrawalAmount.divide(currentBalance).multiply(BigDecimal.valueOf(100)));
+        BigDecimal withdrawalPercentage = (withdrawalAmount.divide(currentBalance, RoundingMode.HALF_UP)).multiply(BigDecimal.valueOf(100));
         return withdrawalPercentage.compareTo(BigDecimal.valueOf(PERMITTED_WITHDRAWAL_PERCENTAGE)) < 0 ;
     }
 
