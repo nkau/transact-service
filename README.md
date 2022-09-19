@@ -14,7 +14,7 @@ docker-compose up --build
 **authentication : two users pre-loaded**
 
 **bobsmith - admin
-joeroot - user**
+joeroot - user (cannot access view endpoints.)**
 
 to get a token, authenticate as either bobsmith or joeroot
 
