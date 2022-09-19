@@ -4,7 +4,7 @@ import com.momentum.invest.transactservice.dtos.InvestorDto;
 import com.momentum.invest.transactservice.dtos.WithdrawalRequest;
 import com.momentum.invest.transactservice.dtos.WithdrawalResponse;
 import com.momentum.invest.transactservice.exceptions.TransactServiceException;
-import com.momentum.invest.transactservice.services.WithdrawalService;
+import com.momentum.invest.transactservice.services.TransactService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -14,17 +14,17 @@ import java.util.List;
 @RestController
 public class TransactController {
 
-    private final WithdrawalService withdrawalService;
+    private final TransactService transactService;
 
-    public TransactController(WithdrawalService withdrawalService){
-        this.withdrawalService =  withdrawalService;
+    public TransactController(TransactService transactService){
+        this.transactService =  transactService;
     }
 
     @GetMapping(path = "/investor/getAll")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<InvestorDto>> getAllInvestors(){
 
-        var investors = withdrawalService.getAllInvestors();
+        var investors = transactService.getAllInvestors();
 
         return ResponseEntity.ok(investors);
     }
@@ -32,7 +32,7 @@ public class TransactController {
     @GetMapping(path="/investor/{investorId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<InvestorDto> getInvestorByIdentifier(@PathVariable String investorId){
-        var investor = withdrawalService.getInvestorByInvestorIdentifier(investorId);
+        var investor = transactService.getInvestorByInvestorIdentifier(investorId);
 
         return ResponseEntity.ok(investor);
     }
@@ -40,6 +40,6 @@ public class TransactController {
     @PostMapping(path = "/withdraw")
     @PreAuthorize("hasRole('ADMIN') OR hasRole('INVESTOR')")
     public WithdrawalResponse doWithdrawal(@RequestBody WithdrawalRequest request) throws TransactServiceException {
-        return withdrawalService.doWithdrawal(request);
+        return transactService.doWithdrawal(request);
     }
 }

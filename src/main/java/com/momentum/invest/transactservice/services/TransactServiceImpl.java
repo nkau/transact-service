@@ -21,17 +21,17 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class WithdrawalServiceImpl implements WithdrawalService{
+public class TransactServiceImpl implements TransactService {
 
     private final InvestorRepository investorRepository;
 
     private final ProductRepository productRepository;
 
-    private static final Integer PERMITTED_AGE = 60;
+    private static final Integer PERMITTED_AGE = 65;
 
     private static final Integer PERMITTED_WITHDRAWAL_PERCENTAGE = 90;
 
-    public WithdrawalServiceImpl(InvestorRepository investorRepository, ProductRepository productRepository){
+    public TransactServiceImpl(InvestorRepository investorRepository, ProductRepository productRepository){
         this.investorRepository = investorRepository;
         this.productRepository = productRepository;
     }
