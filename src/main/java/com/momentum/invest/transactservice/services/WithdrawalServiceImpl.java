@@ -10,7 +10,6 @@ import com.momentum.invest.transactservice.exceptions.TransactServiceException;
 import com.momentum.invest.transactservice.repositories.InvestorRepository;
 import com.momentum.invest.transactservice.repositories.ProductRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -18,6 +17,7 @@ import java.time.Period;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -52,6 +52,8 @@ public class WithdrawalServiceImpl implements WithdrawalService{
     public WithdrawalResponse doWithdrawal(WithdrawalRequest request) throws TransactServiceException {
 
         var investor = investorRepository.findInvestorByInvestorIdentifier(request.getInvestorId());
+        if(Objects.isNull(investor))
+            throw new TransactServiceException(String.format("Investor not found for given id %s",request.getInvestorId()));
 
         WithdrawalResponse withDrawalResponse;
         validateWithdrawalRequest(investor,request);
@@ -69,12 +71,17 @@ public class WithdrawalServiceImpl implements WithdrawalService{
 
     private WithdrawalResponse buildWithdrawalResponse(BigDecimal openingBalance,BigDecimal closingBalance,
                                                        BigDecimal transactionAmount){
-        return new WithdrawalResponse(openingBalance,closingBalance,transactionAmount,"");
+        return new WithdrawalResponse(openingBalance,closingBalance,transactionAmount,"SUCCESS");
     }
 
     private Product getTransactingProduct(Investor investor,String productName,String productType){
-        return investor.getProducts().stream().filter(product -> (product.getName().equalsIgnoreCase(productName) &&
-                product.getType().equalsIgnoreCase(productType))).findFirst().get();
+        Product product = null;
+        Optional<Product> optionalProduct = investor.getProducts().stream().filter(x -> (x.getName().equalsIgnoreCase(productName) &&
+                x.getType().equalsIgnoreCase(productType))).findFirst();
+        if(optionalProduct.isPresent()) {
+            product = optionalProduct.get();
+        }
+        return product;
     }
 
     private BigDecimal getNewBalance(Product product, BigDecimal amount, TransactionType transactionType){
@@ -101,14 +108,15 @@ public class WithdrawalServiceImpl implements WithdrawalService{
     }
 
     private boolean isWithinAllowedTransactionAmount(BigDecimal currentBalance,BigDecimal withdrawalAmount){
-        return (withdrawalAmount.divide(currentBalance).multiply(BigDecimal.valueOf(100)).compareTo(BigDecimal.valueOf(PERMITTED_WITHDRAWAL_PERCENTAGE))) < 0 ;
+        BigDecimal withdrawalPercentage = (withdrawalAmount.divide(currentBalance).multiply(BigDecimal.valueOf(100)));
+        return withdrawalPercentage.compareTo(BigDecimal.valueOf(PERMITTED_WITHDRAWAL_PERCENTAGE)) < 0 ;
     }
 
     private void validateWithdrawalRequest(Investor investor, WithdrawalRequest request) throws TransactServiceException {
         var product = getTransactingProduct(investor,request.getFromAccount(),request.getFromAccountType());
         if(Objects.isNull(product))
             throw new TransactServiceException(String.format("Product not found %s for Investor %s",request.getFromAccount(),request.getInvestorId()));
-        if(request.getAccountType().equalsIgnoreCase("RETIREMENT") && !isWithinAllowedAgeGroup(getInvestorAge(investor)))
+        if(request.getFromAccount().equalsIgnoreCase("RETIREMENT") && !isWithinAllowedAgeGroup(getInvestorAge(investor)))
             throw new TransactServiceException(String.format("Below minimum age %s permitted for withdrawals from retirement account.",PERMITTED_AGE));
         if(!isWithinAllowedTransactionAmount(product.getBalance(),request.getAmount()))
             throw new TransactServiceException(String.format("Transaction amount above allowed threshold of %s",PERMITTED_WITHDRAWAL_PERCENTAGE));

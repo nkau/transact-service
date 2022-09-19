@@ -21,7 +21,7 @@ public class TransactController {
     }
 
     @GetMapping(path = "/investor/getAll")
-    @PreAuthorize("hasRole('ADMIN') OR hasRole('INVESTOR')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<InvestorDto>> getAllInvestors(){
 
         var investors = withdrawalService.getAllInvestors();
@@ -30,7 +30,7 @@ public class TransactController {
     }
 
     @GetMapping(path="/investor/{investorId}")
-    @PreAuthorize("hasRole('ADMIN') OR hasRole('INVESTOR')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<InvestorDto> getInvestorByIdentifier(@PathVariable String investorId){
         var investor = withdrawalService.getInvestorByInvestorIdentifier(investorId);
 
@@ -38,7 +38,7 @@ public class TransactController {
     }
 
     @PostMapping(path = "/withdraw")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') OR hasRole('INVESTOR')")
     public WithdrawalResponse doWithdrawal(@RequestBody WithdrawalRequest request) throws TransactServiceException {
         return withdrawalService.doWithdrawal(request);
     }

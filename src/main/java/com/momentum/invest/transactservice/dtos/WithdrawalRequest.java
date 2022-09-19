@@ -12,7 +12,7 @@ public class WithdrawalRequest {
     private String fromAccount;
     private String fromAccountType;
     private String toAccount;
-    private String accountType;
+    private String toAccountType;
     private BigDecimal amount;
 
 }
