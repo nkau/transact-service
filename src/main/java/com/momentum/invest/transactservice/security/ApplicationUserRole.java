@@ -13,7 +13,7 @@ import static com.momentum.invest.transactservice.security.ApplicationUserPermis
 @Getter
 public enum ApplicationUserRole {
 
-    INVESTOR(Sets.newHashSet()),
+    INVESTOR(Sets.newHashSet(INVESTOR_READ,PRODUCT_READ)),
     ADMIN(Sets.newHashSet(INVESTOR_READ,INVESTOR_WRITE,PRODUCT_READ,PRODUCT_WRITE));
 
     private final Set<ApplicationUserPermission> permissions;

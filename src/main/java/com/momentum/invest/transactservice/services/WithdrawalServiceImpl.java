@@ -10,6 +10,7 @@ import com.momentum.invest.transactservice.exceptions.TransactServiceException;
 import com.momentum.invest.transactservice.repositories.InvestorRepository;
 import com.momentum.invest.transactservice.repositories.ProductRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -85,7 +86,7 @@ public class WithdrawalServiceImpl implements WithdrawalService{
        return result;
     }
 
-    private void updateProductBalance(Product product, BigDecimal amount,TransactionType transactionType){
+    void updateProductBalance(Product product, BigDecimal amount, TransactionType transactionType){
         productRepository.updateProductBalance(product.getId(),getNewBalance(product,amount,transactionType));
     }
 
@@ -107,14 +108,9 @@ public class WithdrawalServiceImpl implements WithdrawalService{
         var product = getTransactingProduct(investor,request.getFromAccount(),request.getFromAccountType());
         if(Objects.isNull(product))
             throw new TransactServiceException(String.format("Product not found %s for Investor %s",request.getFromAccount(),request.getInvestorId()));
-            //throw exception since user cannot transact against product.
-            //if the product type is retirement, then investor age should be greater than 60
         if(request.getAccountType().equalsIgnoreCase("RETIREMENT") && !isWithinAllowedAgeGroup(getInvestorAge(investor)))
             throw new TransactServiceException(String.format("Below minimum age %s permitted for withdrawals from retirement account.",PERMITTED_AGE));
-            //throw exception if not within specified age group, move thresh hold age to application properties.
-            //check that the investor has specified product
-            //check that the withdrawal amount is not more than 90% of balance
         if(!isWithinAllowedTransactionAmount(product.getBalance(),request.getAmount()))
-            throw new TransactServiceException(String.format("Transaction amount above allowed threshold of %s %",PERMITTED_WITHDRAWAL_PERCENTAGE));
+            throw new TransactServiceException(String.format("Transaction amount above allowed threshold of %s",PERMITTED_WITHDRAWAL_PERCENTAGE));
     }
 }

@@ -18,21 +18,12 @@ import static com.momentum.invest.transactservice.security.ApplicationUserRole.*
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class ApplicationSecurityConfig  extends WebSecurityConfigurerAdapter {
 
     private final PasswordEncoder passwordEncoder;
 
     private static final String[] AUTH_WHITELIST = {
-            // -- Swagger UI v2
-            "/v2/api-docs",
-            "/swagger-resources",
-            "/swagger-resources/**",
-            "/configuration/ui",
-            "/configuration/security",
-            "/swagger-ui.html",
-            "/webjars/**",
-            // -- Swagger UI v3 (OpenAPI)
             "/v3/api-docs/**",
             "/swagger-ui/**"
     };
@@ -70,9 +61,6 @@ public class ApplicationSecurityConfig  extends WebSecurityConfigurerAdapter {
                 .addFilterAfter(new JwtTokenVerifier(),JwtUsernameAndPasswordAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers(AUTH_WHITELIST)
-                .permitAll()
-                .antMatchers("/investor/*").hasRole(ADMIN.name())
-                .anyRequest()
-                .authenticated();
+                .permitAll();
     }
 }
