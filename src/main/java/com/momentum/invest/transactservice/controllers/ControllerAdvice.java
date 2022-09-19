@@ -4,6 +4,7 @@ import com.momentum.invest.transactservice.dtos.ErrorResponse;
 import com.momentum.invest.transactservice.exceptions.TransactServiceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -12,6 +13,12 @@ public class ControllerAdvice extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(TransactServiceException.class)
     protected ResponseEntity<ErrorResponse> handleAccountNotFoundException(TransactServiceException ex){
+        ErrorResponse errorResponse = new ErrorResponse(ex.getMessage());
+        return new ResponseEntity(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    protected ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex){
         ErrorResponse errorResponse = new ErrorResponse(ex.getMessage());
         return new ResponseEntity(errorResponse, HttpStatus.BAD_REQUEST);
     }
