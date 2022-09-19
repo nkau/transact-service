@@ -1,15 +1,20 @@
 # transact-service
 
 **to build application** : 
+```
 ./gradlew build -i
+```
 
 **to run application** :
+
+```
 docker-compose up --build
+```
 
 **authentication : two users pre-loaded**
 
-bobsmith - admin
-joeroot - user
+**bobsmith - admin
+joeroot - user**
 
 to get a token, authenticate as either bobsmith or joeroot
 
